@@ -53,11 +53,11 @@ def update(flame):
 
     # データ取り出し
     times = rows[1]
-    y1 = rows[6]    #BAT_T
-    y2 = rows[7]    #SYS_T
-    y3 = rows[8]    #SYS_H
-    y4 = rows[12]*0.8047+0.497    #MOT_T
-    y5 = rows[13]*0.8046+0.5344    #GEA_T
+    y1 = np.array(rows[6], dtype='float')  # BAT_T
+    y2 = np.array(rows[7], dtype='float')  # SYS_T
+    y3 = np.array(rows[8], dtype='float')  # SYS_H
+    y4 = np.array(rows[12], dtype='float') * 0.8047 + 0.497  # MOT_T
+    y5 = np.array(rows[13], dtype='float') * 0.8046 + 0.5344  # GEA_T
 
     line1, = ax.plot(times, y1, ".", label="BAT_T", color='g')
     line2, = ax.plot(times, y2, ".", label="SYS_T", color='r')
