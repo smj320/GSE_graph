@@ -23,9 +23,6 @@ def main():
     use("TkAgg")
     plt.ion()
 
-    # コネクション断時の再接続設定
-    # connection.ping(reconnect=True)
-
     fig, ax = plt.subplots()
     fig.set_size_inches(10, 5)
 
@@ -53,11 +50,11 @@ def update(flame):
 
     # データ取り出し
     times = rows[1]
-    y1 = np.array(rows[6], dtype='float')  # BAT_T
-    y2 = np.array(rows[7], dtype='float')  # SYS_T
-    y3 = np.array(rows[8], dtype='float')  # SYS_H
-    y4 = np.array(rows[12], dtype='float') * 0.8047 + 0.497  # MOT_T
-    y5 = np.array(rows[13], dtype='float') * 0.8046 + 0.5344  # GEA_T
+    y1 = np.array(rows[8], dtype='float')  # BAT_T
+    y2 = np.array(rows[9], dtype='float')  # SYS_T
+    y3 = np.array(rows[10], dtype='float')  # SYS_H
+    y4 = np.array(rows[13], dtype='float') * 0.8047 + 0.497  # MOT_T
+    y5 = np.array(rows[14], dtype='float') * 0.8046 + 0.5344  # GEA_T
 
     line1, = ax.plot(times, y1, ".", label="BAT_T", color='g')
     line2, = ax.plot(times, y2, ".", label="SYS_T", color='r')
@@ -65,7 +62,7 @@ def update(flame):
     line4, = ax.plot(times, y4, ".", label="MOT_T", color='y')
     line5, = ax.plot(times, y5, ".", label="GEA_T", color='m')
     ax.set_title("System Temperature    [%s]" % t0.strftime("%F %H:%M:%S"))
-    ax.legend(loc=0)
+    ax.legend(loc='lower left')
     plt.pause(1)
     line1.remove()
     line2.remove()
