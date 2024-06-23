@@ -13,6 +13,8 @@ import sqlalchemy as sa
 import matplotlib
 from matplotlib import dates as mdates
 from matplotlib import pyplot as plt
+# Curses
+import curses
 
 
 def get_time_range():
@@ -54,10 +56,16 @@ def update(engine, ax):
         ll[0].remove()
 
 
-def main():
+def main(stdscr):
     # DB接続と解除
     url = f'mysql+pymysql://root:pass@localhost:3306/df3_gse'
     engine = sa.create_engine(url, echo=False)
+
+    # 画面準備
+    curses.noecho()
+    curses.cbreak()
+    stdscr.keypad(True)
+    stdscr.nodelay(True)
 
     # キャンバスの準備
     matplotlib.use("TkAgg")
@@ -72,7 +80,16 @@ def main():
     # データ描画
     while True:
         update(engine, ax)
+        rtc = stdscr.getch()
+        if rtc == 0x1b:  # ESC
+            break
+
+    curses.nocbreak()
+    stdscr.keypad(False)
+    stdscr.nodelay(False)
+    curses.echo()
+    curses.endwin()
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    curses.wrapper(main)
