@@ -66,6 +66,7 @@ def main(stdscr):
     curses.cbreak()
     stdscr.keypad(True)
     stdscr.nodelay(True)
+    stdscr.addstr(1, 1, "GSE Graphic running... [stop ESC]")
 
     # キャンバスの準備
     matplotlib.use("TkAgg")
