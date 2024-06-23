@@ -41,11 +41,11 @@ def update(engine, ax):
     df = pd.read_sql(sqlcmd, con=engine)
 
     # プロット
-    lines = [ax.plot(df.TS, df.BAT_T, ".", label="BAT_T", color='g'),
-             ax.plot(df.TS, df.SYS_T, ".", label="SYS_T", color='r'),
-             ax.plot(df.TS, df.SYS_H, ".", label="SYS_H", color='b'),
-             ax.plot(df.TS, df.MOT_T, ".", label="MOT_T", color='y'),
-             ax.plot(df.TS, df.GEA_T, ".", label="GEA_T", color='m')]
+    lines = [ax.plot(df.TS, df.BAT_T*0.6+0.8, ".", label="BAT_T", color='g'),
+             ax.plot(df.TS, df.SYS_T*1.0+0.0, ".", label="SYS_T", color='r'),
+             ax.plot(df.TS, df.SYS_H*1.0+0.0, ".", label="SYS_H", color='b'),
+             ax.plot(df.TS, df.MOT_T*0.6+0.8, ".", label="MOT_T", color='y'),
+             ax.plot(df.TS, df.GEA_T*0.6+0.8, ".", label="GEA_T", color='m')]
     ax.set_title("System Temperature    [%s]" % t0.strftime("%F %H:%M:%S"))
     ax.legend(loc='lower left')
 
