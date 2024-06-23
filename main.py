@@ -6,6 +6,7 @@ df3_gseのrecordテーブルから、データをプロットする
 import math
 import datetime as dt
 # DB
+import pymysql
 import pandas as pd
 import sqlalchemy as sa
 # プロット
