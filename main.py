@@ -1,86 +1,92 @@
+"""
+df3_gseのrecordテーブルから、データをプロットする
+"""
 # モジュールの取得
-import datetime as dt
+# 基本
 import math
-import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib import use as use
+import datetime as dt
+# DB
+import pandas as pd
+import sqlalchemy as sa
+# プロット
+import matplotlib
 from matplotlib import dates as mdates
-from mysql import connector as con
+from matplotlib import pyplot as plt
+# キー操作
+import curses
 
-global config, fig, ax
+
+def get_time_range():
+    """ 時刻範囲とデータ取得用SQLを生成 """
+    # ティック刻み15分の場合
+    t0 = dt.datetime.now()
+    u_stop = (math.floor(t0.timestamp() / (15 * 60)) + 1) * 15 * 60
+    start = dt.datetime.fromtimestamp(u_stop - 2 * 60 * 60)
+    stop = dt.datetime.fromtimestamp(u_stop)
+    start_str = start.strftime('%Y-%m-%d %H:%M:%S')
+
+    # データ取得用SQL
+    cmd = "select * from record where TS > '%s'" % start_str
+    return t0, start, stop, cmd
+
+
+def update(engine, ax):
+    """ 描画の更新 """
+    # 描画パラメータ取得
+    t0, start, stop, query = get_time_range()
+    ax.set_xlim(start, stop)
+
+    # DB接続と解除
+    sqlcmd = "select * from record where TS > '%s'" % start.strftime("%Y-%m-%d %H:%M:%S")
+    df = pd.read_sql(sqlcmd, con=engine)
+
+    # プロット
+    lines = [ax.plot(df.TS, df.BAT_T, ".", label="BAT_T", color='g'),
+             ax.plot(df.TS, df.SYS_T, ".", label="SYS_T", color='r'),
+             ax.plot(df.TS, df.SYS_H, ".", label="SYS_H", color='b'),
+             ax.plot(df.TS, df.MOT_T, ".", label="MOT_T", color='y'),
+             ax.plot(df.TS, df.GEA_T, ".", label="GEA_T", color='m')]
+    ax.set_title("System Temperature    [%s]" % t0.strftime("%F %H:%M:%S"))
+    ax.legend(loc='lower left')
+
+    # 後始末
+    plt.pause(1)
+    for line in lines:
+        line[0].remove()
 
 
 def main():
-    global config, fig, ax
-    config = {
-        "host": "localhost",
-        "port": 3306,
-        "user": "root",
-        "password": "pass",
-        "database": "df3_gse"
-    }
+    # スクリーン初期化
+    stdscr = curses.initscr()
+    curses.cbreak()
+    stdscr.keypad(True)
 
-    use("TkAgg")
-    plt.ion()
+    # DB接続と解除
+    url = f'mysql+pymysql://root:pass@localhost:3306/df3_gse'
+    engine = sa.create_engine(url, echo=False)
 
+    # キャンバスの準備
+    matplotlib.use("TkAgg")
     fig, ax = plt.subplots()
     fig.set_size_inches(10, 5)
 
+    # 座標軸の設定
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d\n%H:%M'))
     ax.set_ylim(-60, 60)
     ax.grid()
 
-    for i in range(86400):
-        update(i)
+    # データ描画
+    stdscr.addstr(1, 1, "Plot Start: Exit ESC key", curses.A_BOLD)
+    while True:
+        update(engine, ax)
+        c = stdscr.getch()
+        if c == 0x1B:  # ESC
+            break
 
-
-def update(flame):
-    global config, fig, ax
-    # 描画パラメータ取得
-    t0, start, stop, cmd = get_time_range()
-    ax.set_xlim(start, stop)
-
-    # DB接続と解除
-    connection = con.connect(**config)
-    cur = connection.cursor()
-    cur.execute(cmd)
-    rows = np.array(cur.fetchall()).transpose()
-    cur.close()
-    connection.close()
-
-    # データ取り出し
-    times = rows[1]
-    y1 = np.array(rows[8], dtype='float')  # BAT_T
-    y2 = np.array(rows[9], dtype='float')  # SYS_T
-    y3 = np.array(rows[10], dtype='float')  # SYS_H
-    y4 = np.array(rows[13], dtype='float') * 0.8047 + 0.497  # MOT_T
-    y5 = np.array(rows[14], dtype='float') * 0.8046 + 0.5344  # GEA_T
-
-    line1, = ax.plot(times, y1, ".", label="BAT_T", color='g')
-    line2, = ax.plot(times, y2, ".", label="SYS_T", color='r')
-    line3, = ax.plot(times, y3, ".", label="SYS_H", color='b')
-    line4, = ax.plot(times, y4, ".", label="MOT_T", color='y')
-    line5, = ax.plot(times, y5, ".", label="GEA_T", color='m')
-    ax.set_title("System Temperature    [%s]" % t0.strftime("%F %H:%M:%S"))
-    ax.legend(loc='lower left')
-    plt.pause(1)
-    line1.remove()
-    line2.remove()
-    line3.remove()
-    line4.remove()
-    line5.remove()
-
-
-def get_time_range():
-    # 現在時刻
-    t0 = dt.datetime.now()
-    # ティック刻み15分の場合,時間繰り越しがあるので15分足して15分で丸める
-    t1 = t0 + dt.timedelta(minutes=15)
-    stop = np.datetime64(t1.replace(minute=math.floor(t1.minute / 15) * 15, second=0, microsecond=0))
-    start = stop - np.timedelta64(2, 'h')
-    str_st = start.astype(np.datetime64)
-    cmd = "select * from record where TS > '%s'" % str_st
-    return t0, start, stop, cmd
+    # 後始末
+    curses.nocbreak()
+    stdscr.keypad(False)
+    curses.echo()
 
 
 if __name__ == "__main__":
