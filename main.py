@@ -13,8 +13,6 @@ import sqlalchemy as sa
 import matplotlib
 from matplotlib import dates as mdates
 from matplotlib import pyplot as plt
-# キー操作
-import curses
 
 
 def get_time_range():
@@ -52,16 +50,11 @@ def update(engine, ax):
 
     # 後始末
     plt.pause(1)
-    for line in lines:
-        line[0].remove()
+    for ll in lines:
+        ll[0].remove()
 
 
 def main():
-    # スクリーン初期化
-    stdscr = curses.initscr()
-    curses.cbreak()
-    stdscr.keypad(True)
-
     # DB接続と解除
     url = f'mysql+pymysql://root:pass@localhost:3306/df3_gse'
     engine = sa.create_engine(url, echo=False)
@@ -77,17 +70,8 @@ def main():
     ax.grid()
 
     # データ描画
-    stdscr.addstr(1, 1, "Plot Start: Exit ESC key", curses.A_BOLD)
     while True:
         update(engine, ax)
-        c = stdscr.getch()
-        if c == 0x1B:  # ESC
-            break
-
-    # 後始末
-    curses.nocbreak()
-    stdscr.keypad(False)
-    curses.echo()
 
 
 if __name__ == "__main__":
