@@ -10,7 +10,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 # プロット
 import matplotlib
-from matplotlib import dates as mdates
+from matplotlib import dates
 from matplotlib import pyplot as plt
 # Curses
 import curses
@@ -73,7 +73,7 @@ def main(stdscr):
     fig.set_size_inches(10, 5)
 
     # 座標軸の設定
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d\n%H:%M'))
+    ax.xaxis.set_major_formatter(dates.DateFormatter('%m/%d\n%H:%M'))
     ax.set_ylim(-60, 60)
     ax.grid()
 
