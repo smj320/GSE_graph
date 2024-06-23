@@ -6,9 +6,8 @@ df3_gseのrecordテーブルから、データをプロットする
 import math
 import datetime as dt
 # DB
-import pymysql
 import pandas as pd
-import sqlalchemy as sa
+from sqlalchemy import create_engine
 # プロット
 import matplotlib
 from matplotlib import dates as mdates
@@ -59,7 +58,7 @@ def update(engine, ax):
 def main(stdscr):
     # DB接続と解除
     url = f'mysql+pymysql://root:pass@localhost:3306/df3_gse'
-    engine = sa.create_engine(url, echo=False)
+    engine = create_engine(url, echo=False)
 
     # 画面準備
     curses.noecho()
@@ -85,6 +84,7 @@ def main(stdscr):
         if rtc == 0x1b:  # ESC
             break
 
+    # 画面の後始末
     curses.nocbreak()
     stdscr.keypad(False)
     stdscr.nodelay(False)
