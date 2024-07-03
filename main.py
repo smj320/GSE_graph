@@ -68,7 +68,7 @@ def main(stdscr):
     stdscr.addstr(1, 1, "GSE Graphic running... [stop ESC]")
 
     # キャンバスの準備
-    matplotlib.use("TkAgg")
+    matplotlib.use("QtAgg")
     fig, ax = plt.subplots()
     fig.set_size_inches(10, 5)
 
